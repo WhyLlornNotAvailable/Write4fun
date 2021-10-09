@@ -1,0 +1,100 @@
+def counter(func):
+    count=0
+    def used():
+        nonlocal count
+        count+=1
+        print("Function {} called {} time(s)".format(func.__name__,count))
+        return func
+    return count
+gross_goods=[]
+class goods_shop:
+    def __init__(self,goods):
+        print("Importing Goods……")
+        self.goods=goods
+    @counter
+    def import_goods(goods):
+        global gross_goods
+        if gross_goods.count(goods)==0:
+            gross_goods.append(goods)
+        else:
+            pass
+class goods_consumer():
+    def __init__(self):
+
+        print("Purchasing Goods……")
+    @counter
+    def __getattribute__(self, name):
+        count=False
+        for i in len(gross_goods):
+            if gross_goods[i].__name__==name:
+                count=True
+        if count==False:
+            print("Sorry we don't have {}".format(name))
+    def buy(name):
+        global gross_goods
+        gross_goods.remove(name)
+SERVER=goods_shop("beer")
+SERVER.import_goods("ham")
+SERVER.import_goods("egg")
+SERVER.import_goods("steak")
+
+CUSTOMER=goods_consumer()
+CUSTOMER.buy("ham")
+CUSTOMER.buy("wine")
+CUSTOMER.steak()
+
+改动后
+def counter(func):
+    ct=0
+    def count(*args,**kwargs):#不注意容易Int和函数同名，从而Int not callable
+        nonlocal ct
+        ct+=1
+        print("Function {} called {} time(s)".format(func.__name__,ct))
+        return func(*args,**kwargs)
+    return count
+gross_goods=["water"]
+class goods_shop:
+    def __init__(self):
+        print("Importing Goods……")
+    @counter
+    def import_goods(self,goods):
+        self.goods=goods
+        global gross_goods
+        if self.goods not in gross_goods:
+            gross_goods.append(self.goods)
+        else:
+            pass
+        
+class goods_consumer:
+    def __init__(self):
+        print("Purchasing Goods……")
+
+    @counter
+    def buy_goods(self,name):
+        global gross_goods
+        if name in gross_goods:
+            gross_goods.remove(name)
+            print("Thanks for purchasing {}".format(name))
+        else:
+            print("Sry but we dont have {}".format(name))
+    @counter
+    def __getattr__(self, name):#getattr getattribute区别
+        global gross_goods
+        if name in gross_goods:
+            gross_goods.remove(name)
+            print("Thanks for purchasing {}".format(name))
+        else: 
+            print("Sry but you cannot {} here\nILLEGAL!".format(name))
+SERVER=goods_shop()
+SERVER.import_goods("ham")
+SERVER.import_goods("egg")
+SERVER.import_goods("steak")
+# INP=input("What do you want to buy?\n")
+CUSTOMER=goods_consumer()
+# CUSTOMER.buy_goods(INP)
+CUSTOMER.buy_goods("water")
+CUSTOMER.buy_goods("egg")
+CUSTOMER.buy_goods("wine")
+CUSTOMER.steak
+CUSTOMER.cleaner#没括号，否则容易Nonetype Not callable
+#Not Callable出现的原因，Nonetype就是不该加括号的加了，其他的（Type为X）就是一个X属性的东西和函数重名了
