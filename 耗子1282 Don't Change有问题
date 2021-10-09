@@ -1,0 +1,35 @@
+def dec(func):
+    ct=0
+    def count(*args):
+        nonlocal ct
+        ct+=1
+        print("Func {} called {} times".format(func.__name__,ct))
+        return dec
+    return count
+def private(*dontchange):#里面加不允许改的项目
+    def deco(*arg):#仍然不解的*arg，也是为了接受里面的其他变量？
+        class change:
+            def __init__(self,*args):#必须初始化且有*args（接受其他变量）
+                # ※※※否则这个class不接受之后的name，value之类的变量。
+                pass
+            @dec#因为类装饰器在类之后创建，所以把TypeError盖了
+            def __setattr__(self, name, value):
+                if name in dontchange:
+                    raise TypeError("Don't Change This")
+                else:
+                    setattr(change,name,value)#等价于change.name=value，不在dontchange里就正常改。
+                    #change.name=value是完全正常的句子（不特指某个实例），不能pass了否则正常的也做不了了
+	    #类.名字=数值
+        return change
+    return deco
+@private("name","sex")
+class employee:
+    def __init__(self,name,sex,salary):
+        self.name=name
+        self.sex=sex
+        self.salary=salary
+A=employee("Wang","Male",1300)
+A.salary=5000
+A.name="Hao"
+A.sex="Female"
+
