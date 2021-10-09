@@ -1,0 +1,32 @@
+def tracer(func):#func既然已经规定了修饰函数，就必须有func的影子，并且不能直接用来修饰class，只能修饰class的方法（）
+    called=0
+    def upcount(*args,**kwargs):#缺的两个参数就是这两个，必须写，不解
+    #或者说起关键作用的那个就要这两个参数，不解
+        nonlocal called
+        called +=1
+        print("{} Called {} times".format(func.__name__,called))#任何函数都有name
+        return func(*args,**kwargs)#upcount针对func的，所以return func
+    return upcount#tracer的计数要利用upcount，所以tracer必须return upcount，不是return func！否则func本身啥也没输出，因为没用upcount
+class employee:
+    
+    def __init__(self,name,wage):
+        self.name=name
+        self.wage=wage
+    @tracer#需要tracer计数的class中的def用装饰tracer，init不用就不加
+    def raisePayment(self,percent):
+        A=(self.wage*(1+percent))
+        print(A)
+        self.wage=A
+        return A
+    @tracer
+    def descendPayment(self,percent):
+        A=(self.wage*(1-percent))
+        print(A)
+        self.wage=A
+        return A
+Wang=employee("a",20)
+Wang.raisePayment(.25)
+Wang.raisePayment(.4)
+Wang.raisePayment(1)
+Wang.descendPayment(.5)
+
