@@ -1,0 +1,17 @@
+from tkinter import *
+
+
+top=Tk()
+top.geometry('640x480')
+
+def ct(*args):#0 was given解决方案
+    print("ClickA")
+
+A=Label(top,text="Greetings!",font=("Arial",40))
+C=Button(top,command=top.quit,text="Wanna quit?",activebackground='red',activeforeground='white')
+A.bind('<Button-1>',ct)#此处必须引用函数或lambda本身
+    #bind的Button，鼠标1左2中3右4滚上5下
+    #在左键点到A时就触发ct
+A.pack()
+C.pack()
+mainloop()
