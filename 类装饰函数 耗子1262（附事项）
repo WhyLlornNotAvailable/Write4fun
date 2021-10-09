@@ -1,0 +1,19 @@
+import time
+class tracer:
+    def __init__(self,func):#没这个func就没个修饰了，因为就是在修饰函数func
+        self.func=func
+        print("Start at {}".format(time.ctime()))
+    def __call__(self):#修饰了的函数，被修饰的函数就会有这个call
+        time.sleep(1)
+        print("Call at {}".format(time.ctime()))
+        return self.func()#call是主要修饰函数的部分，所以修饰完了本身要return到函数 ※
+    #class无返回
+@tracer
+def hello():
+    print("Salutations!")
+hello()
+hello()
+hello()
+# 修饰要作用到函数中去【tracer的主要部分(func)】，修饰本身也得返回函数【tracer return func】
+# 所以就有修饰器好似“互相嵌套”的存在
+如果多层就是W形状（耗子书1282）
