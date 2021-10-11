@@ -1,0 +1,7 @@
+class imnormal:
+    def __init__(self,initt):
+        self.initt=initt
+    def __add__(self,val):
+        return self.initt-val #其他方法就像定义函数一样（函数专有参数不用实例化），不过得有self和return
+A=imnormal(3)
+print(A+2)#之后对imnormal类的所有+运算都是__add__方法结算
