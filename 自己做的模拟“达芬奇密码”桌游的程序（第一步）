@@ -1,0 +1,164 @@
+#Password of Da Vinci
+import random
+
+TURN=None;NOT_TURN=None
+TURN_TUPLE=("MY","RIVAL")
+RIVAL_DECK=[]
+MY_DECK=[]
+SHOW_RIVAL_DECK=[]
+SHOW_MY_DECK=[]
+MAIN_DECK=[]
+SHOW_MAIN_DECK=[]
+STATUS=False        #本回合（整个）是否猜对过
+STATUS_REAL=False   #本次（单次）是否猜对了
+ACTUAL_RIVAL_CARD=[]
+ACTUAL_MY_CARD=[]   #实际一张牌的正反面朝上状态
+
+class Card:
+    def __init__(self,color,number,*arg):#Card为卡牌，分黑白两色的0-11以及“-”（视为-1）
+        self.color=color
+        self.number=number
+def MY_guess(direction): #我选择猜对手的位置
+    global STATUS,STATUS_REAL
+    if direction>=len(SHOW_RIVAL_DECK) or type(direction)!=int:
+        print("You serious?")
+    else:
+        detail_color=input("Color?")
+        detail_number=input("Number?")
+        if detail_color!=SHOW_RIVAL_DECK[direction][0] or int(detail_number)!=SHOW_RIVAL_DECK[direction][1]:
+            STATUS_REAL=False            
+            print("Wrong.")
+            if STATUS==True:
+                print("No need to show card since you have guessed correct this round")
+            else:
+                print("Please show your rival(RIVAL) a card.")
+        else:
+            STATUS=True
+            STATUS_REAL=True
+            print("Right, now you can guess another one until wrong.")
+def RIVAL_guess(direction):#和MY_guess必须同时改
+    global STATUS,STATUS_REAL
+    if direction>=len(SHOW_MY_DECK) or type(direction)!=int:
+        print("You serious?")
+    else:
+        detail_color=input("Color?")
+        detail_number=input("Number?")
+        if detail_color!=SHOW_MY_DECK[direction][0] or int(detail_number)!=SHOW_MY_DECK[direction][1]:
+            STATUS_REAL=False
+            print("Wrong.")
+            if STATUS==True:
+                print("No need to show card since you have guessed correct this round")
+            else:
+                print("Please show your rival(RIVAL) a card.")
+        else:
+            STATUS=True
+            STATUS_REAL=True
+            print("Right, now you can guess another one until wrong.")
+def begin(BEGIN_CARD):#游戏初始化
+    global MAIN_DECK,RIVAL_DECK,MY_DECK,SHOW_RIVAL_DECK,SHOW_MY_DECK,SHOW_MAIN_DECK
+
+    MAIN_DECK=[Card(C,N) for N in range(-1,12) for C in ("B","W")]#牌库恢复，手牌清空
+    SHOW_MAIN_DECK=[(Card(C,N).color,Card(C,N).number) for N in range(-1,12) for C in ("B","W")]
+    RIVAL_DECK.clear()
+    MY_DECK.clear()
+    SHOW_MY_DECK.clear()
+    SHOW_RIVAL_DECK.clear()
+
+    for i in range(BEGIN_CARD):
+
+        a=random.randint(0,len(MAIN_DECK)-1)#随机挑一张牌
+        RIVAL_DECK.append(MAIN_DECK[a])
+        SHOW_RIVAL_DECK.append((MAIN_DECK[a].color,MAIN_DECK[a].number))
+        MAIN_DECK.remove(RIVAL_DECK[i])
+        SHOW_MAIN_DECK.remove((RIVAL_DECK[i].color,RIVAL_DECK[i].number))
+
+        a=random.randint(0,len(MAIN_DECK)-1)#随机挑一张牌
+        MY_DECK.append(MAIN_DECK[a])
+        SHOW_MY_DECK.append((MAIN_DECK[a].color,MAIN_DECK[a].number))
+        MAIN_DECK.remove(MY_DECK[i])
+        SHOW_MAIN_DECK.remove((MY_DECK[i].color,MY_DECK[i].number))
+def sortCard():#按照规则把牌摆好
+    global SHOW_MY_DECK,SHOW_RIVAL_DECK
+
+    SHOW_MY_DECK.sort(key=lambda x:x[1])#学习方法
+    SHOW_RIVAL_DECK.sort(key=lambda x:x[1])
+def show():#展示排序前的双方手牌和牌库剩余（实际游戏不需要）
+    global MAIN_DECK,RIVAL_DECK,MY_DECK,SHOW_RIVAL_DECK,SHOW_MY_DECK,SHOW_MAIN_DECK
+
+    print("RIVAL_DECK:",SHOW_RIVAL_DECK)
+    # print("CARD REMAINING:",len(SHOW_RIVAL_DECK))
+    print("MY_DECK:",SHOW_MY_DECK)
+    # print("CARD REMAINING:",len(SHOW_MY_DECK))
+    print("MAIN_DECK:",SHOW_MAIN_DECK)
+def showAfterSort():#展示排序后的双方手牌和牌库剩余
+    global SHOW_MY_DECK,SHOW_RIVAL_DECK    
+
+    print("SORTED RIVAL DECK:",SHOW_RIVAL_DECK)
+    print("CARD REMAINING:",len(SHOW_RIVAL_DECK))
+    print("SORTED MY DECK:",SHOW_MY_DECK)
+    print("CARD REMAINING:",len(SHOW_MY_DECK))
+def switchHand():#回合结束到下一位玩家，或决定初始玩家。并显示
+    global TURN,NOT_TURN,STATUS,STATUS_REAL
+    if TURN==None or NOT_TURN==None:
+        a=random.randint(0,1)
+        TURN=TURN_TUPLE[a]
+        NOT_TURN=TURN_TUPLE[1-a]
+    elif TURN=="MY":
+        TURN="RIVAL"
+        NOT_TURN="MY"
+    elif TURN=="RIVAL":
+        TURN="MY"
+        NOT_TURN="RIVAL"
+    STATUS=False
+    STATUS_REAL=False
+    print("NOW {} TURN, {} CARDS WILL BE GUESSED".format(TURN,NOT_TURN))
+def forceShow(number):#如果本回合没猜对过，就强制展示一张牌
+    if TURN=="MY":
+        print("My card No.{} has been shown {}".format(number,SHOW_MY_DECK[number]))
+    elif TURN=="RIVAL":
+        print("My card No.{} has been shown {}".format(number,SHOW_RIVAL_DECK[number]))
+def cardDraw():#没猜对过还需要补一张牌
+    global MY_DECK,SHOW_MY_DECK,RIVAL_DECK,SHOW_RIVAL_DECK,MAIN_DECK,SHOW_MAIN_DECK
+    if TURN=="MY":
+        a=random.randint(0,len(MAIN_DECK)-1)#随机挑一张牌
+        MY_DECK.append(MAIN_DECK[a])
+        SHOW_MY_DECK.append((MAIN_DECK[a].color,MAIN_DECK[a].number))
+        i=len(SHOW_MY_DECK)
+        MAIN_DECK.remove(MY_DECK[i-1])
+        SHOW_MAIN_DECK.remove((MY_DECK[i-1].color,MY_DECK[i-1].number))
+        print("You obtained the card {}".format((MY_DECK[i-1].color,MY_DECK[i-1].number)))
+        sortCard()
+        print("Now you have {} cards, and they are {}".format(len(SHOW_MY_DECK),SHOW_MY_DECK))
+        # print("Main deck remaining {} cards,and they are {}".format(len(SHOW_MAIN_DECK),SHOW_MAIN_DECK))
+    elif TURN=="RIVAL":
+        a=random.randint(0,len(MAIN_DECK)-1)#随机挑一张牌
+        RIVAL_DECK.append(MAIN_DECK[a])
+        SHOW_RIVAL_DECK.append((MAIN_DECK[a].color,MAIN_DECK[a].number))
+        i=len(SHOW_RIVAL_DECK)
+        MAIN_DECK.remove(RIVAL_DECK[i-1])
+        SHOW_MAIN_DECK.remove((RIVAL_DECK[i-1].color,RIVAL_DECK[i-1].number))
+        print("You obtained the card {}".format((RIVAL_DECK[i-1].color,RIVAL_DECK[i-1].number)))
+        sortCard()
+        print("Now you have {} cards, and they are {}".format(len(SHOW_RIVAL_DECK),SHOW_RIVAL_DECK))
+        # print("Main deck remaining {} cards,and they are {}".format(len(SHOW_MAIN_DECK),SHOW_MAIN_DECK))
+def gameTerminateJudge():#判断游戏是否已经结束
+    pass
+def Initialize():
+    begin(BEGIN_CARD=3)
+    # show()
+    sortCard()
+    showAfterSort()
+    switchHand()
+
+if __name__=="__main__":#以下是流程
+    Initialize()
+    while 1:
+        DIRECTION=input("Choose a card:")
+        exec("{}_guess(int(DIRECTION))".format(TURN))
+        if not STATUS:
+            aCard=input("Please choose a card to show (Mandatory):")
+            forceShow(int(aCard))
+            cardDraw()
+            switchHand()
+        elif not STATUS_REAL:#猜对过但本次猜错，STATUS是True，STATUS_REAL是False
+            switchHand()
